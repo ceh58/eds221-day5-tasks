@@ -1,0 +1,38 @@
+---
+title: "Storm Runoff"
+author: "Carmen"
+date: "2024-08-16"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+```{r}
+source(here::here("src", "storm_runoff.R"))
+predict_runoff(0.6, 182)
+
+imp <- seq(from = 0.6, to = 0.8, by = 0.01)
+
+runoff <- predict_runoff(imp, 182)
+
+runoff_df <- data.frame(imp, runoff)
+
+ggplot(runoff_df, aes(x = imp, y = runoff))+
+  geom_point()+
+  geom_line()+
+  labs(x = "Impervious Fraction",
+       y = "Volume Runoff (ft^3)",
+       title = "Volume of Runoff for a 182 Acre Watershed")
+
+ggsave(here::here("figs", "runoff.png"))
+```
+

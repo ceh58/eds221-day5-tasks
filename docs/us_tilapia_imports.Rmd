@@ -1,0 +1,58 @@
+---
+title: "US Tilapia Imports"
+author: "Carmen"
+date: "2024-08-16"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+```{r}
+rm(list = ls())
+us_tilapia_imports <- read_csv(here::here("data", "us_tilapia_imports.csv"))
+
+summary(us_tilapia_imports)
+names(us_tilapia_imports)
+dim(us_tilapia_imports)
+
+us_tilapia_imports <- us_tilapia_imports |>
+  pivot_longer(cols = -country, names_to = "year", values_to = "imports") |>
+  mutate(year = as.numeric(year))
+
+yearly_tilapia_tot <- us_tilapia_imports |>
+  dplyr::group_by(year) |>
+  summarize(total_imports = sum(imports, na.rm = TRUE))
+
+ggplot(yearly_tilapia_tot, aes(x = year, y = total_imports)) +
+  geom_point()+
+  labs(x = "Years",
+       y = "Total Imports of Tilaplia (fish)",
+       title = "Total Tilapia Imports by Year for the US")
+
+ggsave(here::here("figs", "yearly_tilapia_tot.png"))
+
+camer_tilapia_tot <- us_tilapia_imports |>
+  filter(country == c("Ecuador", "Honduras", "Costa Rica", "Mexico")) |>
+  dplyr::group_by(country, year) |>
+  summarize(total_imports = sum(imports, na.rm = TRUE))
+  
+ggplot(camer_tilapia_tot, aes(x = year, y = total_imports, color = country))+
+  geom_point()+
+  labs(x = "Year",
+       y = "Total Imports",
+       title = "Total Imports by Country")+
+  theme_minimal()
+
+ggsave(here::here("figs", "camer_imports.png"))
+```
+
